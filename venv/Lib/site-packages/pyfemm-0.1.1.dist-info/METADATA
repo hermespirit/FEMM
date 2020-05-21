@@ -1,0 +1,34 @@
+Metadata-Version: 2.1
+Name: pyfemm
+Version: 0.1.1
+Summary: Python interface to Finite Element Method Magnetics (FEMM)
+Home-page: http://www.femm.info/wiki/pyFEMM
+Author: David Meeker
+Author-email: dmeeker@ieee.org
+License: ['LICENSE.txt']
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)
+Classifier: License :: Aladdin Free Public License (AFPL)
+Requires-Dist: matplotlib
+Requires-Dist: pypiwin32
+Requires-Dist: six
+
+
+===========
+pyFEMM
+===========
+
+pyFEMM is a Python interface to Finite Element Method Magnetics (FEMM).
+The module uses win32com to communicate with FEMM's out-of-proc activex
+server.  The functions in the module wrap interactions with FEMM, making
+it easy to script FEMM from a Python program.
+
+FEMM is available at <http://www.femm.info>
+
+Documentation is available at <http://www.femm.info/wiki/pyFEMM/manual.pdf>
+
+
+
