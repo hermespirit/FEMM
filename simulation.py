@@ -1,8 +1,9 @@
 import femm
 
-femm.openfemm(1)  # create an instance of femm without GUI
+femm.openfemm()  # create an instance of femm without GUI
 
 # problem definition
+femm.newdocument(0)  # create new magnetic problem preprocessor document
 
 # geometry definition
 
