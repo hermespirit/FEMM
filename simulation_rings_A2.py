@@ -13,6 +13,7 @@
 
 import femm
 import matplotlib.pyplot as plt
+import numpy
 
 femm.openfemm()  # create an instance of femm without GUI
 
@@ -77,5 +78,20 @@ plt.xlabel('Distance along the z-axis, mm')
 plt.title('Plot of flux density along the axis')
 plt.grid()
 plt.show()
+
+# export 2D data in csv file with numpy
+
+B_data_2D = numpy.array([])
+
+for r in range(0, 20):  # radial data range
+    zee = []
+    bee = []
+    for z in range(-10, 10):  # axial data range
+        b = femm.mo_getb(r, z)
+        # zee.append(z)
+        bee.append(b[1])
+    B_data_2D = numpy.append(B_data_2D, bee, axis=0)
+
+numpy.savetxt('B_A2_20x20mm.data', B_data_2D, delimiter=',')
 
 femm.closefemm()  # close the instance of femm
