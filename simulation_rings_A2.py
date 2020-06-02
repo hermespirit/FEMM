@@ -1,6 +1,6 @@
-# This program is inspired of pyfemm exemple demo2, although a lot simpler.
+# This program is inspired of pyfemm example demo2, although slightly simpler.
 # The problem consider an axisymmetric magnetostatic problem
-# of two concentric 'N48' neodymium ring magnets (Assembly 2).
+# of two concentric 'N48' neodymium ring magnets (called Assembly 2 or A2).
 # The centers of both rings are overlapped, but the rings have reverse magnetization directions.
 # The outer ring has a height of 5mm, an inner radius of 6 mm, and an outer radius of 15 mm.
 # The inner ring has a height of 2mm, an inner radius of 2 mm, and an outer radius of 6 mm.
@@ -15,7 +15,7 @@ import femm
 import matplotlib.pyplot as plt
 import numpy
 
-femm.openfemm()  # create an instance of femm without GUI
+femm.openfemm(1)  # create an instance of femm without GUI, enter 0 instead of 1 to activate the GUI
 
 # problem definition
 femm.newdocument(0)  # create new magnetic problem preprocessor document
@@ -23,40 +23,53 @@ femm.newdocument(0)  # create new magnetic problem preprocessor document
 femm.mi_probdef(0, 'millimeters', 'axi', 1.e-8, 0,
                 30)  # Define the problem type. Magnetostatic; Units of mm; Axisymmetric; Precision of 10^(-8) for the linear solver; a placeholder of 0 for the depth dimension, and an angle constraint of 30 degrees
 
-# geometry definition
-femm.mi_drawrectangle(6, 0, 15, 5)  # draw a rectangle for the outer ring magnet;
-femm.mi_drawrectangle(2, 1.5, 6, 3.5)  # draw a rectangle for the inner ring
+# materials properties
+femm.mi_getmaterial('Air')  # fetches the material called air from the materials library
+femm.mi_getmaterial('N48')
+
+
+# magnet creation
+
+def draw_ring_magnet(center_coordinate_z, height, inner_radius, outer_radius):
+    # draw rectangle
+    femm.mi_drawrectangle(inner_radius, center_coordinate_z - (height / 2), outer_radius,
+                          center_coordinate_z + (height / 2))
+    pass
+
+
+def add_ring_magnet(center_coordinate_z, height, inner_radius, outer_radius, material, magnetization_direction):
+    # draw rectangle
+    draw_ring_magnet(center_coordinate_z, height, inner_radius, outer_radius)
+    # add block label
+    femm.mi_addblocklabel((inner_radius + outer_radius) / 2, center_coordinate_z)
+    femm.mi_selectlabel((inner_radius + outer_radius) / 2,
+                        center_coordinate_z)  # assign the material to the outer block
+    femm.mi_setblockprop(material, 0, 1, '<None>', magnetization_direction, 0,
+                         0)  # setblockprop(’blockname’, automesh, meshsize, ’incircuit’, magdir, group, turns)
+    femm.mi_clearselected()
+
+    # return label coordinate
+    return ((inner_radius + outer_radius) / 2, center_coordinate_z)
+
+
+add_ring_magnet(2.5, 2, 2, 6, 'N48', 90)  # inner ring
+add_ring_magnet(2.5, 5, 6, 15, 'N48', 270)  # outer ring
 
 # boundaries conditions
 femm.mi_makeABC()  # simulate an open boundary condition
 
-# materials properties
-femm.mi_addblocklabel(1, 1)  # air block (airbox)
-femm.mi_addblocklabel(10, 3)  # outer ring block (neodymium)
-femm.mi_addblocklabel(4, 3)  # inner ring block (neodymium)
-
-femm.mi_getmaterial('Air')  # fetches the material called air from the materials library
-femm.mi_getmaterial('N48')
-
-femm.mi_selectlabel(10, 3)  # assign the material to the outer block
-femm.mi_setblockprop('N48', 0, 1, '<None>', 90, 0,
-                     0)  # setblockprop(’blockname’, automesh, meshsize, ’incircuit’, magdir, group, turns)
-femm.mi_clearselected()
-
-femm.mi_selectlabel(4, 3)  # assign the material to the inner block
-femm.mi_setblockprop('N48', 0, 1, '<None>', 270, 0,
-                     0)  # setblockprop(’blockname’, automesh, meshsize, ’incircuit’, magdir, group, turns)
-femm.mi_clearselected()
+# airbox creation
+femm.mi_addblocklabel(1, 1)  # air block (airbox) : the coordinates of the label must be outside of any magnet
 
 femm.mi_selectlabel(1, 1)  # assign the material to the airbox
 femm.mi_setblockprop('Air', 0, 1, '<None>', 0, 0, 0)
 femm.mi_clearselected()
 
-femm.mi_zoomnatural()  # to check geometry while debuging
+femm.mi_zoomnatural()  # to check geometry while debugging
 femm.mi_saveas('A2_concentric_rings.fem')
 
 # meshing
-# automaticaly done by the analysis function
+# automatically done by the analysis function
 
 # analysis
 femm.mi_analyze()
