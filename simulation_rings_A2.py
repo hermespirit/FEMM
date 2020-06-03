@@ -25,7 +25,7 @@ femm.mi_probdef(0, 'millimeters', 'axi', 1.e-8, 0,
 
 # materials properties
 femm.mi_getmaterial('Air')  # fetches the material called air from the materials library
-femm.mi_getmaterial('N48')
+femm.mi_getmaterial('N48')  # TODO: enter material properties manually
 
 
 # magnet creation
@@ -58,15 +58,15 @@ add_ring_magnet(2.5, 5, 6, 15, 'N48', 270)  # outer ring
 # boundaries conditions
 femm.mi_makeABC()  # simulate an open boundary condition
 
-# airbox creation
+# airbox creation # TODO: add airbox coordinates as a program input
 femm.mi_addblocklabel(1, 1)  # air block (airbox) : the coordinates of the label must be outside of any magnet
 
 femm.mi_selectlabel(1, 1)  # assign the material to the airbox
 femm.mi_setblockprop('Air', 0, 1, '<None>', 0, 0, 0)
 femm.mi_clearselected()
 
-femm.mi_zoomnatural()  # to check geometry while debugging
-femm.mi_saveas('A2_concentric_rings.fem')
+femm.mi_zoomnatural()  # pause here to check geometry while debugging
+femm.mi_saveas('A2_concentric_rings.fem')  # save a simulation file with the input name
 
 # meshing
 # automatically done by the analysis function
@@ -75,7 +75,7 @@ femm.mi_saveas('A2_concentric_rings.fem')
 femm.mi_analyze()
 
 # result data export
-femm.mi_loadsolution()
+femm.mi_loadsolution()  # TODO: one function to save the data as csv, input are data range and data step
 
 # plot the flux density along z axis
 zee = []
@@ -93,18 +93,21 @@ plt.grid()
 plt.show()
 
 # export 2D data in csv file with numpy
+# TODO: use nb of point instead of precision, with np.linespeace, in order to delete rounding errors
 
 B_data_2D = numpy.array([])
-
-for r in range(0, 20):  # radial data range
-    zee = []
+r_range = 25
+z_range = 30
+precision = 0.1  # step size in mm
+for r in range(0, r_range * int(1 / precision)):  # radial data range
+    # zee = []
     bee = []
-    for z in range(-10, 10):  # axial data range
-        b = femm.mo_getb(r, z)
+    for z in range(0, z_range * int(1 / precision)):  # axial data range
+        b = femm.mo_getb(r * precision, z * precision)  # return Br and Bz values at the given coordinates
         # zee.append(z)
         bee.append(b[1])
     B_data_2D = numpy.append(B_data_2D, bee, axis=0)
-
+B_data_2D = B_data_2D.reshape((r_range * int(1 / precision), z_range * int(1 / precision)))
 numpy.savetxt('B_A2_20x20mm.data', B_data_2D, delimiter=',')
 
 femm.closefemm()  # close the instance of femm
