@@ -61,7 +61,7 @@ femm.mi_makeABC()  # simulate an open boundary condition
 # airbox creation # TODO: add airbox coordinates as a program input
 femm.mi_addblocklabel(1, 1)  # air block (airbox) : the coordinates of the label must be outside of any magnet
 
-femm.mi_selectlabel(1, 1)  # assign the material to the airbox
+femm.mi_selectlabel(1, 1)  # enter the coordinates of a point in the airbox
 femm.mi_setblockprop('Air', 0, 1, '<None>', 0, 0, 0)
 femm.mi_clearselected()
 
@@ -78,6 +78,7 @@ femm.mi_analyze()
 femm.mi_loadsolution()  # TODO: one function to save the data as csv, input are data range and data step
 
 # plot the flux density along z axis
+# todo:should this be a simple separated function ?
 zee = []
 bee = []
 for n in range(-0, 30):
@@ -94,11 +95,17 @@ plt.show()
 
 # export 2D data in csv file with numpy
 # TODO: use nb of point instead of precision, with np.linespeace, in order to delete rounding errors
+# TODO: add mo makeplot function
+# TODO: add mo get pb info function
+# TODO: add get hap harmonies
+# TODO: add mo gap function
+# TODO: add A1 and A3 examples
 
 B_data_2D = numpy.array([])
 r_range = 25
 z_range = 30
 precision = 0.1  # step size in mm
+
 for r in range(0, r_range * int(1 / precision)):  # radial data range
     # zee = []
     bee = []
@@ -111,3 +118,11 @@ B_data_2D = B_data_2D.reshape((r_range * int(1 / precision), z_range * int(1 / p
 numpy.savetxt('B_A2_20x20mm.data', B_data_2D, delimiter=',')
 
 femm.closefemm()  # close the instance of femm
+
+# display result # TODO: color map with labels and colors range parameters
+
+plt.imshow(B_data_2D, interpolation='nearest')
+plt.xlabel('z axis mm')
+plt.ylabel('radial axis mm')
+plt.title('B_data_2D')
+plt.show()
