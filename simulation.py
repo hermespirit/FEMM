@@ -30,27 +30,42 @@ femm.openfemm(1)  # create an instance of femm without GUI
 print('initialisation of the simulations')
 
 # problem initialisation
-femm.opendocument('P3_N48_size2.FEM')  # TODO:python geometry def
-femm.mi_saveas('temp.fem')
 
 list_magnets_prop = []
-list_magnets_prop.append({"coordinates": (52.5, 75), "magdir": 90})
-list_magnets_prop.append({"coordinates": (52.5, 25), "magdir": 90})
-list_magnets_prop.append({"coordinates": (34, 69), "magdir": 180})
-list_magnets_prop.append({"coordinates": (68, 68), "magdir": 0})
-list_magnets_prop.append({"coordinates": (75, 52), "magdir": 270})
-list_magnets_prop.append({"coordinates": (69, 34), "magdir": 180})
-list_magnets_prop.append({"coordinates": (37, 35), "magdir": 360})
-list_magnets_prop.append({"coordinates": (30, 55), "magdir": 270})
+list_magnets_prop.append({"coordinates": (0, 27.5), "magdir": 90, "size": (15.1, 30.01), "name": 'N'})
+list_magnets_prop.append({"coordinates": (17, 17), "magdir": 0, "size": (15.1, 15.1), "name": 'NE'})
+list_magnets_prop.append({"coordinates": (27.5, 0), "magdir": 270, "size": (30.01, 15.1), "name": 'E'})
+list_magnets_prop.append({"coordinates": (17, -17), "magdir": 180, "size": (15.1, 15.1), "name": 'SE'})
+list_magnets_prop.append({"coordinates": (0, -27.5), "magdir": 90, "size": (15.1, 30.01), "name": 'S'})
+list_magnets_prop.append({"coordinates": (-17, -17), "magdir": 0, "size": (15.1, 15.1), "name": 'SW'})
+list_magnets_prop.append({"coordinates": (-27.5, 0), "magdir": 270, "size": (30.01, 15.1), "name": 'W'})
+list_magnets_prop.append({"coordinates": (-17, 17), "magdir": 180, "size": (15.1, 15.1), "name": 'NW'})
 
 for k in range(0, n):
 	print('simulation %i of %i' % ((k + 1), (n)))
 
 	# problem definition
+	femm.newdocument(0)  # TODO:python geometry def
+	femm.mi_probdef(0, 'millimeters', 'planar', 1.e-8, 0, 30)
+	femm.mi_saveas('temp.fem')
 
 	# geometry definition
+	for magnet_prop in list_magnets_prop:
+		femm.mi_drawrectangle(magnet_prop["coordinates"][0] - (magnet_prop["size"][0]) / 2,
+							  magnet_prop["coordinates"][1] - (magnet_prop["size"][1]) / 2,
+							  magnet_prop["coordinates"][0] + (magnet_prop["size"][0]) / 2,
+							  magnet_prop["coordinates"][1] + (magnet_prop["size"][1]) / 2)
+		femm.mi_addblocklabel(magnet_prop["coordinates"][0], magnet_prop["coordinates"][1])
 
 	# boundaries conditions
+	femm.mi_makeABC()
+
+	# airbox creation # TODO: add airbox coordinates as a program input
+	femm.mi_addblocklabel(1, 1)  # air block (airbox) : the coordinates of the label must be outside of any magnet
+	femm.mi_getmaterial('Air')
+	femm.mi_selectlabel(1, 1)  # enter the coordinates of a point in the airbox
+	femm.mi_setblockprop('Air', 0, 1, '<None>', 0, 0, 0)
+	femm.mi_clearselected()
 
 	# materials properties
 	# todo: check mat prop
