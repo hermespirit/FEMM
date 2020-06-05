@@ -8,3 +8,11 @@
 /B_A2_20x20mm.data
 /Ring_magnet_Femm_B_zaxis_Bz
 /Ring_magnet_Femm_B_zaxis_z
+/P3_N48_size2.FEM
+/temp.ans
+/temp.fem
+/file1.FEM
+/file2.FEM
+/comparison_comp_simulation_vs_manual_definition.data
+/comparison.data
+/file2.ans
