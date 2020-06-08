@@ -4,17 +4,15 @@
 
 from random import gauss
 
-import femm
-
-from comparison_of_simulations import extract_magnetic_field_map
+from helpers import *
 
 # simulation parameters :
-n = 2  # number of simulation
+n = 1  # number of simulation
 
 # material parameters
-bHc_mu = 927.5  # typical coercivity # todo: add non linear material
-bHc_variation_on = True  # if false, the standard deviation of the coercivity is null
-bHc_sigma = 22.5  # standard deviation of coercivity
+bHc_mu = 927500  # typical coercivity # todo: add non linear material
+bHc_variation_on = False  # if false, the standard deviation of the coercivity is null
+bHc_sigma = 22500  # standard deviation of coercivity
 
 # parameters of the data extraction
 x_range = (50, 55)
@@ -31,15 +29,7 @@ print('initialisation of the simulations')
 
 # problem initialisation
 
-list_magnets_prop = []
-list_magnets_prop.append({"coordinates": (0, 27.5), "magdir": 90, "size": (15.1, 30.01), "name": 'N'})
-list_magnets_prop.append({"coordinates": (17, 17), "magdir": 0, "size": (15.1, 15.1), "name": 'NE'})
-list_magnets_prop.append({"coordinates": (27.5, 0), "magdir": 270, "size": (30.01, 15.1), "name": 'E'})
-list_magnets_prop.append({"coordinates": (17, -17), "magdir": 180, "size": (15.1, 15.1), "name": 'SE'})
-list_magnets_prop.append({"coordinates": (0, -27.5), "magdir": 90, "size": (15.1, 30.01), "name": 'S'})
-list_magnets_prop.append({"coordinates": (-17, -17), "magdir": 0, "size": (15.1, 15.1), "name": 'SW'})
-list_magnets_prop.append({"coordinates": (-27.5, 0), "magdir": 270, "size": (30.01, 15.1), "name": 'W'})
-list_magnets_prop.append({"coordinates": (-17, 17), "magdir": 180, "size": (15.1, 15.1), "name": 'NW'})
+list_magnets_prop = define_halbach_magnet_config()
 
 for k in range(0, n):
 	print('simulation %i of %i' % ((k + 1), (n)))
@@ -78,10 +68,10 @@ for k in range(0, n):
 		else:
 			bHc_random = bHc_mu
 
-		femm.mi_addmaterial('N48_' + str(int(1000 * bHc_random)), 1.05, 1.05, bHc_random, 0, 0.667, 0, 0, 1, 0, 0, 0, 0,
+		femm.mi_addmaterial('N48_' + str(int(bHc_random)), 1.05, 1.05, bHc_random, 0, 0.667, 0, 0, 1, 0, 0, 0, 0,
 							0)  # mi_addmaterial(’matname’, mu x, mu y, H c, J, Cduct, Lam d, Phi hmax, lam fill, LamType, Phi hx, Phi hy, nstr, dwire) # todo: improve naming so that two materials do not take the same name
 		femm.mi_selectlabel(magnet_prop["coordinates"][0], magnet_prop["coordinates"][1])
-		femm.mi_setblockprop('N48_' + str(int(1000 * bHc_random)), 1, 1, '<None>', magnet_prop["magdir"], 0,
+		femm.mi_setblockprop('N48_' + str(int(bHc_random)), 1, 1, '<None>', magnet_prop["magdir"], 0,
 							 0)  # setblockprop(’blockname’, automesh, meshsize, ’incircuit’, magdir, group, turns)
 		femm.mi_clearselected()
 
