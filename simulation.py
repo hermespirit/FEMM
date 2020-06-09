@@ -9,10 +9,15 @@ from helpers import *
 # simulation parameters :
 n = 1  # number of simulation
 
-# material parameters
+# magnets material parameters
 bHc_mu = 927500  # typical coercivity # todo: add non linear material
 bHc_variation_on = False  # if false, the standard deviation of the coercivity is null
 bHc_sigma = 22500  # standard deviation of coercivity
+
+# magnets size parameter
+# typical size of the magnet are 15x15mm and are defined by function define_halbach_magnet_config
+magnet_size_variation_on = False  # if false, the standard deviation of the magnets size is null
+magnet_size_sigma = 0.3  # standard deviation of magnet size
 
 # parameters of the data extraction
 x_range = (50, 55)
@@ -41,10 +46,18 @@ for k in range(0, n):
 
 	# geometry definition
 	for magnet_prop in list_magnets_prop:
-		femm.mi_drawrectangle(magnet_prop["coordinates"][0] - (magnet_prop["size"][0]) / 2,
-							  magnet_prop["coordinates"][1] - (magnet_prop["size"][1]) / 2,
-							  magnet_prop["coordinates"][0] + (magnet_prop["size"][0]) / 2,
-							  magnet_prop["coordinates"][1] + (magnet_prop["size"][1]) / 2)
+
+		if magnet_size_variation_on:  # compute randomised bHc value if activated
+			width_variation = gauss(0, magnet_size_sigma)
+			length_variation = gauss(0, magnet_size_sigma)
+		else:
+			width_variation = 0
+			length_variation = 0
+
+		femm.mi_drawrectangle(magnet_prop["coordinates"][0] - (magnet_prop["size"][0] + width_variation) / 2,
+							  magnet_prop["coordinates"][1] - (magnet_prop["size"][1] + length_variation) / 2,
+							  magnet_prop["coordinates"][0] + (magnet_prop["size"][0] + width_variation) / 2,
+							  magnet_prop["coordinates"][1] + (magnet_prop["size"][1] + length_variation) / 2)
 		femm.mi_addblocklabel(magnet_prop["coordinates"][0], magnet_prop["coordinates"][1])
 
 	# boundaries conditions
