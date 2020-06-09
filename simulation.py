@@ -19,6 +19,11 @@ bHc_sigma = 22500  # standard deviation of coercivity
 magnet_size_variation_on = False  # if false, the standard deviation of the magnets size is null
 magnet_size_sigma = 0.3  # standard deviation of magnet size
 
+# magnets position parameter
+# position of the magnets are define in define_halbach_magnet_config
+magnet_position_variation_on = False  # if false, the standard deviation of the magnets position is null
+magnet_position_sigma = 0.3  # standard deviation of magnet position
+
 # parameters of the data extraction
 x_range = (50, 55)
 y_range = (45, 60)
@@ -35,8 +40,8 @@ print('initialisation of the simulations')
 # problem initialisation
 
 list_magnets_prop = define_halbach_magnet_config()
-
-for k in range(0, n):
+k = 0  # number of simulation succeeded
+while k < n:
 	print('simulation %i of %i' % ((k + 1), (n)))
 
 	# problem definition
@@ -54,10 +59,18 @@ for k in range(0, n):
 			width_variation = 0
 			length_variation = 0
 
-		femm.mi_drawrectangle(magnet_prop["coordinates"][0] - (magnet_prop["size"][0] + width_variation) / 2,
-							  magnet_prop["coordinates"][1] - (magnet_prop["size"][1] + length_variation) / 2,
-							  magnet_prop["coordinates"][0] + (magnet_prop["size"][0] + width_variation) / 2,
-							  magnet_prop["coordinates"][1] + (magnet_prop["size"][1] + length_variation) / 2)
+		if magnet_position_variation_on:  # compute randomised bHc value if activated
+			abscissa_variation = gauss(0, magnet_position_sigma)
+			ordinate_variation = gauss(0, magnet_position_sigma)
+		else:
+			abscissa_variation = 0
+			ordinate_variation = 0
+
+		femm.mi_drawrectangle(
+			magnet_prop["coordinates"][0] + abscissa_variation - (magnet_prop["size"][0] + width_variation) / 2,
+			magnet_prop["coordinates"][1] + ordinate_variation - (magnet_prop["size"][1] + length_variation) / 2,
+			magnet_prop["coordinates"][0] + abscissa_variation + (magnet_prop["size"][0] + width_variation) / 2,
+			magnet_prop["coordinates"][1] + ordinate_variation + (magnet_prop["size"][1] + length_variation) / 2)
 		femm.mi_addblocklabel(magnet_prop["coordinates"][0], magnet_prop["coordinates"][1])
 
 	# boundaries conditions
@@ -88,9 +101,15 @@ for k in range(0, n):
 							 0)  # setblockprop(’blockname’, automesh, meshsize, ’incircuit’, magdir, group, turns)
 		femm.mi_clearselected()
 
-	femm.mi_analyze()
-	femm.mi_loadsolution()
-	simulation_result.append(extract_magnetic_field_map(x_range, y_range, dx, dy))
+	try:
+		femm.mi_analyze()
+		femm.mi_loadsolution()
+		simulation_result.append(extract_magnetic_field_map(x_range, y_range, dx, dy))
+		print('simulation succeeded')
+		k += 1
+
+	except:
+		print("simulation failed")
 
 print('end of the simulations')
 femm.closefemm()  # close the instance of femm
